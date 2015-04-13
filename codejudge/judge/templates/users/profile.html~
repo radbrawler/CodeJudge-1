@@ -1,0 +1,29 @@
+{% include "users/base.html" %} 
+
+<body>
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+              <a href="#" class="navbar-brand">Codejudge</a>
+            </div>    
+        </div>
+    </div>
+    <br><br><br>
+    <div class="container-fluid">
+    	<div class="row-fluid">
+    		<div class="col-md-2">
+				<ul class="nav nav-pills nav-stacked">
+				  <li><a href="#">Contest Details</a></li>
+				  <li class="active"><a href="/judge/profile">Profile Settings</a></li>
+				  <li><a href="/judge/logout">Logout</a></li>
+				</ul>
+			</div>
+			<div class="col-md-10">
+			{% for h in hacker %}
+			<h2>Coder Identity: {{h.username}}</h2>
+			<p>Current Email Id: {{h.email}}</p>
+			<form>
+			
+			</form>
+			</div>
+			{% endfor %}
