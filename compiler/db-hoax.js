@@ -46,10 +46,22 @@
 
   var reportResult = function(id, msg) {
     console.log(msg);
-    var queryString = 'UPDATE judge_solution SET status=4 WHERE id='+id;
-    connection.query(queryString, function(err, rows, fields) {
-      if (err) throw err;
-    });
+    
+    if(msg==1)
+    {
+        var queryString = 'UPDATE judge_solution SET status=4 WHERE id='+id;
+        connection.query(queryString, function(err, rows, fields) {
+            if (err) throw err;
+        });
+    }
+    else
+    {
+        var queryString = 'UPDATE judge_solution SET status=5 WHERE id='+id;
+        connection.query(queryString, function(err, rows, fields) {
+            if (err) throw err;
+        });
+    }
+    
     // code that handles the result of the code
     // do whatever you want to write to the db here
   }

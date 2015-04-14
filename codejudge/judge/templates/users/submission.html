@@ -47,6 +47,8 @@
                             <td>Time Limit Execceded</td>
                         {% elif s.status == 4 %}
                             <td>Correct</td>
+                        {% elif s.status == 5 %}
+                            <td>Wrong Answer</td>
                         {% endif %}
                       </tr>
                     {% endfor %}
