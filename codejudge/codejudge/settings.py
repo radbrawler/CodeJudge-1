@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'judge',
     'ckeditor',
+    'v1',
 )
 
 MIDDLEWARE_CLASSES = (
