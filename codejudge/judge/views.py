@@ -12,7 +12,7 @@ from judge.models import *
 from datetime import *
 import json
 import socket
-
+import requests
 
 # Create your views here.
 
@@ -158,7 +158,7 @@ def submitSolution(request):
         l = Language.objects.get(id = request.POST['lid'])
         sol = Solution(hacker=h, contest=c, problem =p , points=0, language=l, attempts=0, time=0.0, status=0)
         sol.save()
-        filename = settings.MEDIA_ROOT + "solution/" +str(sol.id) + "." + str(l.extension)
+        filename = settings.SOLUTION_ROOT + "userdata/" + request.session['username']+'/' +str(sol.id) + "." + str(l.extension)
         fo = open(filename, "w+")
         fo.write(request.POST['solutionBox'])
         sol.solution = "solution/" +str(sol.id) + "." + str(l.extension)
@@ -199,9 +199,11 @@ def register(request):
             print query
             user = Hacker.objects.create_user(username, email, password)
             user.save()
+            payload = {'username':username,'password':password,'email':email}
+            requests.get("http://localhost:8000/v1/userRegister",params=payload)
             user = authenticate(username=username, password=password)
             login(request, user)
-            print user
+            
             request.session['username']  = username
             request.session['password']  = password
             print request.session['username']

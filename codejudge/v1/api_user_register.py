@@ -3,7 +3,7 @@ from django.http import HttpResponse
 import json
 import uuid
 import datetime
-import pytz#http://stackoverflow.com/questions/2331592/datetime-datetime-utcnow-why-no-tzinfo
+import pytz
 from django.contrib.auth.hashers import make_password, check_password, is_password_usable
 from .models import UserInfo, FileSys
 from . import file_manage
