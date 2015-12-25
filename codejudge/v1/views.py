@@ -53,6 +53,6 @@ def f(request):
 	file_name, file_data = api_file.get_download_file_data(short_id)
 	response = HttpResponse(file_data, content_type='text/plain')
 	#support Unicode file name. [IE9,Chrome,FF]
-	response['Content-Disposition'] = 'attachment; filename="{0}";filename*=UTF-8\'\'{1}'.format(urllib.parse.quote_plus(file_name), urllib.parse.quote_plus(file_name))
+	response['Content-Disposition'] = 'attachment; filename="{0}";filename*=UTF-8\'\'{1}'.format(urllib.quote_plus(file_name), urllib.quote_plus(file_name))
 
 	return response

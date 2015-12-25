@@ -5,6 +5,7 @@ import urllib
 import datetime
 import pytz#http://stackoverflow.com/questions/2331592/datetime-datetime-utcnow-why-no-tzinfo
 from . import file_manage
+from urlparse import urlparse
 from .models import UserAuthID, FileSys, ShortLink
 
 def create_basic_json_response(error_code, msg, status):
@@ -18,19 +19,22 @@ def upload_file(request):
 	req_auth_id = request.GET.get('authid', '')
 	req_username = UserAuthID.objects.filter(authID = req_auth_id)[0].userName
 	req_file_path = request.GET.get('filepath', '')
-	file_path = '{0}/{1}'.format(req_username, req_file_path)
+	file_path = os.path.join(req_username, req_file_path)
 	
 	mgr = file_manage.fileManage()
+
 	if(mgr.is_exists(file_path)):#file exist at directory
 		response_data = create_basic_json_response(1202, 'file already exist at server dir', 'error')
 	elif(FileSys.objects.filter(path = file_path)):#file exist at DB
 		response_data = create_basic_json_response(1205, 'file already exist at DB', 'error')
 	else:
+
 		content_type_httpheader = request.META.get('CONTENT_TYPE')#get http header parameter from client
 		content_type = content_type_httpheader.split(';')[0]
 		'''the POST request may be sent from HTML form or JS/Python'''
 		if(content_type != 'text/plain'):#post request from html form element
 			blist = []
+			print "dfgdfgdf"
 			count_begin = 0
 			count_end = 0
 			#seperate request.body and get file data
@@ -64,9 +68,11 @@ def upload_file(request):
 			#print('boundary_end:{0}'.format(boundary_end))
 			#print('file_data:{0}'.format(file_data))
 			stat = mgr.create_file(file_path, file_data)
+			print stat[0]
 			if(stat[0]):
 				#create file correctly, then save the file info into DB
-				parent_folder_path = os.path.dirname(file_path) + '\\'	#DB path should be ended with '\\', such as 'asdf\\xxx\\'
+				print "here"
+				parent_folder_path = os.path.dirname(file_path)
 				parent_folder_id = FileSys.objects.filter(path=parent_folder_path)[0].id 
 				
 				file_guid = str(uuid.uuid1()).replace('-', 'x')
@@ -83,11 +89,14 @@ def upload_file(request):
 			else:
 				response_data = create_basic_json_response(1203, 'Exception:{0}'.format(stat[1]), 'error')
 		else:#if the post request from pure post, the request.body is file content
+			print "Love"
 			stat = mgr.create_file(file_path, request.body)
+			print stat[0]
 			if(stat[0]):
-				parent_folder_path = os.path.dirname(file_path) + '\\'	#DB path should be ended with '\\', such as 'asdf\\xxx\\'
+				parent_folder_path = os.path.dirname(file_path)
+				print parent_folder_path
 				parent_folder_id = FileSys.objects.filter(path=parent_folder_path)[0].id 
-				
+				print parent_folder_id
 				file_guid = str(uuid.uuid1()).replace('-', 'x')
 				file_parentid = parent_folder_id
 				file_type = 'file'
@@ -97,7 +106,7 @@ def upload_file(request):
 				file_name = os.path.basename(file_path)
 				file_item = FileSys(id=file_guid, parentid=file_parentid, type=file_type, size=file_size, createdate=file_current_date, creator=file_creator, filename=file_name, path=file_path)
 				file_item.save()				
-				
+				print "210, 'file uploaded by POST successfully', 'success'"
 				response_data = create_basic_json_response(1210, 'file uploaded by POST successfully', 'success')
 			else:
 				response_data = create_basic_json_response(1204, 'Exception:{0}'.format(stat[1]), 'success')
@@ -107,7 +116,7 @@ def download_file_link(request):
 	req_auth_id = request.GET.get('authid', '')
 	req_username = UserAuthID.objects.filter(authID = req_auth_id)[0].userName
 	req_file_path = request.GET.get('filepath', '')
-	file_path = '{0}/{1}'.format(req_username, req_file_path)
+	file_path = os.path.join(req_username, req_file_path)
 	
 	mgr = file_manage.fileManage()
 	if(mgr.is_exists(file_path) and FileSys.objects.filter(path = file_path)):#file exist at directory and DB
@@ -137,14 +146,15 @@ def download_file_link(request):
 def get_download_file_data(short_id):
 	if(ShortLink.objects.filter(id=short_id)):
 		url = ShortLink.objects.filter(id=short_id)[0].link
-		url_p = urllib.parse.urlparse(url)
+		print url
+		url_p = urlparse(url)
 		url_query = {}#split the url query "authid=7be9a910-5cde-11e5-b465-ea9f05b65156&op=download&filepath=testformpost.txt"
 		for item in url_p.query.split('&'):
 			url_query[item.split('=')[0]] = item.split('=')[1]
 		#get file path
 		req_username = UserAuthID.objects.filter(authID = url_query['authid'])[0].userName
 		req_file_path = url_query['filepath']
-		file_path = '{0}/{1}'.format(req_username, req_file_path)
+		file_path = os.path.join(req_username, req_file_path)
 		mgr = file_manage.fileManage()
 		status, data = mgr.get_file_data(file_path)
 		return os.path.basename(file_path), data#file name, file data
@@ -158,7 +168,7 @@ def api_file(request):
 	response_data = create_basic_json_response(1206, 'Incorrect API format, please check manual', 'error')
 	req_op = request.GET.get('op', '')
 	
-	if(request.method == 'POST' or request.method == 'GET'):
+	if(request.method == 'POST'):
 		if(req_op == 'upload'):
 			response_data = upload_file(request)
 		else:

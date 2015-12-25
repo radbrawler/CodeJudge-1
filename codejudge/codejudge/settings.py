@@ -92,7 +92,7 @@ STATIC_URL = '/static/'
 
 ENV_PATH = os.path.abspath(os.path.dirname(__file__))
 MEDIA_ROOT = os.path.join(ENV_PATH, 'media/')
-SOLUTION_ROOT = str(os.getcwd())+ '/v1/'
+SOLUTION_ROOT = str(os.getcwd())+ '/v1/userdata/'
 MEDIA_URL = "/media/"
 
 AUTH_USER_MODEL = 'judge.Hacker'
